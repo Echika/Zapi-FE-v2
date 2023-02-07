@@ -13,7 +13,7 @@ const Hub = () => {
   const classes = useStyles();
   const { apis } = useAppSelector((store) => store.apis);
 
-  const [allApis, setAllApis] = useState<ApiProps[]>(apis);
+  // const [allApis, setAllApis] = useState<ApiProps[]>(apis);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>();
 
   const { error, loading, sendRequest } = useHttpRequest();
@@ -39,7 +39,7 @@ const Hub = () => {
         payload,
         headers
       );
-      setAllApis(data);
+      // setAllApis(data);
     } catch (error) {}
   };
   useEffect(() => {
@@ -56,7 +56,8 @@ const Hub = () => {
           selectedCategoryId={selectedCategoryId}
           setSelectedCategoryId={setSelectedCategoryId}
         />
-        <HubApis apis={allApis} />
+        {/* <HubApis apis={allApis} /> */}
+        <HubApis selectedCategoryId={selectedCategoryId} />
       </Stack>
       <Footer />
     </Stack>

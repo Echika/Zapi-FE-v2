@@ -1,16 +1,21 @@
-import { Box, Stack } from "@mui/material";
-
+import { Box, Stack, Typography } from "@mui/material";
+import { useQuery } from '@tanstack/react-query';
 import { useAppSelector } from "../../hooks";
 import { useStyles } from "./HubCategories.styles";
 import CustomTypography from "../shared/CustomTypography";
 import { useAppContext } from "../../contexts/AppProvider";
 import CategoryButton from "../shared/Buttons/CategoriesButton";
+import axios from 'axios';
+
+
+const url = import.meta.env.VITE_CORE_URL;
+
 
 interface IHubCategories {
   selectedCategoryId?: string;
   setSelectedCategoryId?: React.Dispatch<
     React.SetStateAction<string | undefined>
-  >;
+  >
 }
 
 const HubCategories = ({
@@ -37,6 +42,7 @@ const HubCategories = ({
     }
     return currentMode === "dark" ? dark.contrastText : light.main;
   }
+  
   function handleBg(id: string) {
     if (selectedCategoryId === id) {
       return currentMode === "dark" ? dark.contrastText : light.main;
@@ -44,10 +50,20 @@ const HubCategories = ({
     return currentMode === "dark" ? dark.main : light.contrastText;
   }
 
+  const queryCategories = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => { return axios.get(`${url}/categories`).then(() => [...categories])}
+  })
+
+  if(queryCategories.isLoading) {
+    return <Typography>Loading ...</Typography>
+  }
+
+
   return (
     <Stack className={classes.catContainer}>
       <Box className={classes.catButtonContainer}>
-        {categories.map((category) => (
+         { queryCategories?.data?.map((category:any) => (
           <CategoryButton
             key={category.id}
             label={category.name}
@@ -57,7 +73,7 @@ const HubCategories = ({
             color={handleColor(category.id)}
             size="medium"
           />
-        ))}
+        ))} 
       </Box>
       <Box className={classes.catTypoContainer}>
         <CustomTypography
@@ -74,6 +90,9 @@ const HubCategories = ({
       </Box>
     </Stack>
   );
+
+
+ 
 };
 
 export default HubCategories;

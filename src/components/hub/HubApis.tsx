@@ -13,17 +13,46 @@ import ApiNotFound from "./ApiNotFound";
 import { ApiProps } from "../../interfaces";
 import { useStyles } from "./HubApis.styles";
 import CustomTypography from "../shared/CustomTypography";
+import { useQuery } from "@tanstack/react-query";
+import { useHttpRequest } from "../../hooks";
 
+// interface IHubApis {
+//   apis: ApiProps[];
+// }
 interface IHubApis {
-  apis: ApiProps[];
+  selectedCategoryId: string | undefined;
 }
 
-const HubApis = ({ apis }: IHubApis) => {
+const core_url = "VITE_CORE_URL";
+
+const HubApis = ({selectedCategoryId}:IHubApis) => {
   const classes = useStyles({});
+  const { error, loading, sendRequest } = useHttpRequest();
+  const getApisByCategory = async () => {
+    const headers = { "Content-Type": "application/json" };
+    const payload = {};
+    try {
+      const data = await sendRequest(
+        `/categories/${selectedCategoryId}/apis`,
+        "get",
+        core_url,
+        payload,
+        headers
+      );
+      console.log("data from request",data)
+      console.log("selectedCategoryId",selectedCategoryId)
+      return data;
+    } catch (error) {}
+  };
+
+  const queryCategories = useQuery({
+    queryKey: ['categories', selectedCategoryId],
+    queryFn: getApisByCategory
+  })
 
   return (
     <Box className={classes.hubApiContainer}>
-      {apis?.length < 1 ? (
+      {queryCategories.data?.length < 1 ? (
         <ApiNotFound />
       ) : (
         <>
@@ -51,7 +80,7 @@ const HubApis = ({ apis }: IHubApis) => {
             </FormControl>
           </Box>
           <Box className={classes.apiContainer} component={"div"}>
-            {apis?.map((api) => (
+            {queryCategories.data?.map((api:ApiProps) => (
               <Grid
                 sx={{
                   // display: "flex",
